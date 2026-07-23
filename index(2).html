@@ -1,0 +1,1066 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>NULLROUTE — Book a Security Engagement</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#0B1220;
+    --ink-2:#0E1728;
+    --surface:#131C2E;
+    --surface-2:#1A2540;
+    --line:#28344E;
+    --line-soft:#1F2B42;
+    --text:#E7EDF7;
+    --muted:#8A9BB8;
+    --muted-dim:#5E6E8C;
+    --azure:#5B9DFF;
+    --azure-bright:#7DB4FF;
+    --azure-dim:rgba(91,157,255,.14);
+    /* severity spectrum — used semantically only */
+    --sev-crit:#FF4D6D;
+    --sev-high:#FF9F45;
+    --sev-med:#FFD24B;
+    --sev-info:#4DD4C4;
+    --radius:14px;
+    --radius-sm:9px;
+    --mono:'JetBrains Mono',ui-monospace,monospace;
+    --display:'Space Grotesk',system-ui,sans-serif;
+    --body:'Inter',system-ui,sans-serif;
+  }
+
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{
+    background:var(--ink);
+    color:var(--text);
+    font-family:var(--body);
+    line-height:1.55;
+    -webkit-font-smoothing:antialiased;
+    overflow-x:hidden;
+  }
+  ::selection{background:var(--azure);color:#04102a}
+
+  /* backdrop grid */
+  body::before{
+    content:"";position:fixed;inset:0;z-index:0;pointer-events:none;
+    background-image:
+      linear-gradient(var(--line-soft) 1px,transparent 1px),
+      linear-gradient(90deg,var(--line-soft) 1px,transparent 1px);
+    background-size:64px 64px;
+    -webkit-mask-image:radial-gradient(ellipse 90% 60% at 50% 0%,#000 0%,transparent 75%);
+            mask-image:radial-gradient(ellipse 90% 60% at 50% 0%,#000 0%,transparent 75%);
+    opacity:.5;
+  }
+
+  .mono{font-family:var(--mono)}
+  .eyebrow{
+    font-family:var(--mono);font-size:11px;letter-spacing:.22em;text-transform:uppercase;
+    color:var(--azure);font-weight:500;
+  }
+
+  /* ---------- top bar ---------- */
+  header{
+    position:sticky;top:0;z-index:50;
+    display:flex;align-items:center;justify-content:space-between;
+    padding:14px clamp(18px,5vw,56px);
+    background:rgba(11,18,32,.72);
+    backdrop-filter:blur(12px);
+    border-bottom:1px solid var(--line-soft);
+  }
+  .brand{display:flex;align-items:center;gap:11px;font-family:var(--mono);font-weight:600;letter-spacing:.04em;font-size:15px}
+  .brand .dot{width:9px;height:9px;border-radius:2px;background:var(--azure);box-shadow:0 0 12px var(--azure)}
+  .brand span{color:var(--muted);font-weight:400}
+  .status{display:flex;align-items:center;gap:8px;font-family:var(--mono);font-size:11.5px;color:var(--muted)}
+  .status .pulse{width:7px;height:7px;border-radius:50%;background:var(--sev-info);box-shadow:0 0 10px var(--sev-info);animation:pulse 2.4s ease-in-out infinite}
+  @keyframes pulse{0%,100%{opacity:1}50%{opacity:.35}}
+
+  /* ---------- layout ---------- */
+  main{position:relative;z-index:1;max-width:1120px;margin:0 auto;padding:0 clamp(18px,5vw,56px)}
+
+  /* ---------- hero ---------- */
+  .hero{padding:clamp(56px,9vw,104px) 0 clamp(40px,6vw,64px)}
+  .hero-grid{display:grid;grid-template-columns:1.15fr .85fr;gap:clamp(28px,5vw,64px);align-items:center}
+  h1{
+    font-family:var(--display);font-weight:600;
+    font-size:clamp(34px,6vw,60px);line-height:1.02;letter-spacing:-.02em;
+    margin:20px 0 22px;
+  }
+  h1 .em{color:var(--azure)}
+  .lede{font-size:clamp(15px,1.6vw,17.5px);color:var(--muted);max-width:46ch;margin-bottom:32px}
+  .hero-cta{display:flex;gap:14px;flex-wrap:wrap;align-items:center}
+
+  .btn{
+    font-family:var(--mono);font-size:13.5px;font-weight:500;letter-spacing:.03em;
+    border-radius:var(--radius-sm);padding:13px 22px;cursor:pointer;border:1px solid transparent;
+    transition:transform .15s ease,background .2s ease,border-color .2s ease,box-shadow .2s ease;
+    display:inline-flex;align-items:center;gap:9px;text-decoration:none;
+  }
+  .btn-primary{background:var(--azure);color:#051225;box-shadow:0 8px 26px -12px var(--azure)}
+  .btn-primary:hover{background:var(--azure-bright);transform:translateY(-2px)}
+  .btn-ghost{background:transparent;color:var(--text);border-color:var(--line)}
+  .btn-ghost:hover{border-color:var(--azure);color:var(--azure)}
+  .btn:disabled{opacity:.4;cursor:not-allowed;transform:none!important}
+  .btn-arrow{transition:transform .18s ease}
+  .btn:hover .btn-arrow{transform:translateX(3px)}
+
+  /* hero window preview (mini signature) */
+  .window-preview{
+    background:linear-gradient(180deg,var(--surface),var(--ink-2));
+    border:1px solid var(--line);border-radius:var(--radius);
+    padding:20px;box-shadow:0 30px 70px -40px #000;
+  }
+  .wp-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px}
+  .wp-head .label{font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+  .wp-track{display:flex;gap:5px}
+  .wp-cell{
+    flex:1;height:52px;border-radius:6px;border:1px solid var(--line-soft);
+    display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;
+    font-family:var(--mono);font-size:10px;color:var(--muted-dim);position:relative;
+  }
+  .wp-cell.lock{
+    background:repeating-linear-gradient(45deg,transparent,transparent 5px,var(--line-soft) 5px,var(--line-soft) 6px);
+  }
+  .wp-cell.open{background:var(--azure-dim);border-color:rgba(91,157,255,.4);color:var(--azure)}
+  .wp-cell b{font-size:13px;color:inherit}
+  .wp-legend{display:flex;gap:16px;margin-top:14px;font-family:var(--mono);font-size:10.5px;color:var(--muted)}
+  .wp-legend i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:6px;vertical-align:-1px}
+  .wp-legend .l-lock{background:repeating-linear-gradient(45deg,var(--line-soft),var(--line-soft) 3px,transparent 3px,transparent 5px);border:1px solid var(--line)}
+  .wp-legend .l-open{background:var(--azure-dim);border:1px solid rgba(91,157,255,.4)}
+
+  /* ---------- service overview cards ---------- */
+  .services{display:grid;grid-template-columns:1fr 1fr;gap:18px;padding:8px 0 clamp(40px,6vw,72px)}
+  .svc{
+    text-align:left;cursor:pointer;background:var(--surface);border:1px solid var(--line);
+    border-radius:var(--radius);padding:26px 24px;position:relative;overflow:hidden;
+    transition:transform .18s ease,border-color .2s ease,box-shadow .2s ease;
+    color:inherit;font:inherit;
+  }
+  .svc::before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--edge,var(--azure));opacity:.85}
+  .svc:hover{transform:translateY(-3px);border-color:var(--edge,var(--azure));box-shadow:0 24px 50px -34px var(--edge,var(--azure))}
+  .svc-tag{font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--edge,var(--azure));margin-bottom:14px;display:flex;align-items:center;gap:8px}
+  .svc h3{font-family:var(--display);font-size:22px;font-weight:600;letter-spacing:-.01em;margin-bottom:9px}
+  .svc p{color:var(--muted);font-size:14px;margin-bottom:18px}
+  .svc ul{list-style:none;display:flex;flex-direction:column;gap:8px;margin-bottom:20px}
+  .svc li{font-family:var(--mono);font-size:12px;color:var(--muted);display:flex;gap:9px;align-items:baseline}
+  .svc li::before{content:"›";color:var(--edge,var(--azure));font-weight:700}
+  .svc-go{font-family:var(--mono);font-size:12.5px;color:var(--edge,var(--azure));font-weight:500;display:flex;align-items:center;gap:7px}
+
+  /* ---------- console / wizard ---------- */
+  .console{
+    background:linear-gradient(180deg,var(--ink-2),var(--ink));
+    border:1px solid var(--line);border-radius:18px;
+    margin-bottom:clamp(48px,8vw,96px);overflow:hidden;
+    box-shadow:0 40px 100px -60px #000;
+  }
+  .console-bar{
+    display:flex;align-items:center;gap:8px;padding:13px 20px;
+    border-bottom:1px solid var(--line-soft);background:var(--surface);
+    font-family:var(--mono);font-size:11.5px;color:var(--muted);
+  }
+  .console-bar .tl{display:flex;gap:6px;margin-right:6px}
+  .console-bar .tl i{width:11px;height:11px;border-radius:50%;background:var(--line)}
+  .console-bar .path{color:var(--muted)}
+  .console-bar .path b{color:var(--text);font-weight:500}
+
+  .console-body{display:grid;grid-template-columns:230px 1fr;min-height:520px}
+
+  /* phase rail */
+  .rail{border-right:1px solid var(--line-soft);padding:26px 18px;background:rgba(15,23,40,.5)}
+  .rail-title{font-family:var(--mono);font-size:10.5px;letter-spacing:.2em;text-transform:uppercase;color:var(--muted-dim);margin-bottom:18px;padding-left:8px}
+  .phase{
+    display:flex;gap:13px;align-items:flex-start;padding:11px 8px;border-radius:9px;
+    color:var(--muted-dim);transition:color .2s ease,background .2s ease;position:relative;
+  }
+  .phase + .phase{margin-top:2px}
+  .phase .num{font-family:var(--mono);font-size:12px;font-weight:600;width:26px;height:26px;flex:none;border-radius:7px;border:1px solid var(--line);display:flex;align-items:center;justify-content:center;transition:all .2s ease}
+  .phase .pt{font-size:13px;font-weight:500;padding-top:3px;font-family:var(--body)}
+  .phase.done{color:var(--muted)}
+  .phase.done .num{background:var(--azure-dim);border-color:rgba(91,157,255,.4);color:var(--azure)}
+  .phase.active{color:var(--text)}
+  .phase.active .num{background:var(--azure);border-color:var(--azure);color:#04102a;box-shadow:0 0 16px -2px var(--azure)}
+  .phase.active::before{content:"";position:absolute;left:-18px;top:11px;bottom:11px;width:3px;border-radius:3px;background:var(--azure)}
+
+  /* panel */
+  .panel{padding:clamp(26px,4vw,40px);position:relative}
+  .panel-head{margin-bottom:26px}
+  .panel-head .eyebrow{display:block;margin-bottom:10px}
+  .panel-head h2{font-family:var(--display);font-size:clamp(23px,3vw,30px);font-weight:600;letter-spacing:-.015em;margin-bottom:8px}
+  .panel-head p{color:var(--muted);font-size:14.5px;max-width:56ch}
+
+  .step{display:none;animation:fade .35s ease}
+  .step.on{display:block}
+  @keyframes fade{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+
+  /* form elements */
+  .field{margin-bottom:18px}
+  .field.half{display:inline-block;width:calc(50% - 7px)}
+  .field.half:first-of-type,.row .field.half:nth-child(odd){margin-right:12px}
+  .row{display:flex;gap:14px;flex-wrap:wrap}
+  .row .field{flex:1;min-width:200px;margin-bottom:18px}
+  label.lbl{display:block;font-family:var(--mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:8px}
+  label.lbl .req{color:var(--sev-high)}
+  input,select,textarea{
+    width:100%;background:var(--ink);border:1px solid var(--line);color:var(--text);
+    border-radius:var(--radius-sm);padding:12px 14px;font-family:var(--body);font-size:14.5px;
+    transition:border-color .18s ease,box-shadow .18s ease,background .18s ease;
+  }
+  input::placeholder,textarea::placeholder{color:var(--muted-dim)}
+  input:focus,select:focus,textarea:focus{outline:none;border-color:var(--azure);box-shadow:0 0 0 3px var(--azure-dim);background:var(--ink-2)}
+  textarea{resize:vertical;min-height:88px;font-family:var(--mono);font-size:13px}
+  select{appearance:none;background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'><path d='M2 4l4 4 4-4' stroke='%238A9BB8' stroke-width='1.4' fill='none'/></svg>");background-repeat:no-repeat;background-position:right 14px center;padding-right:36px}
+  .hint{font-family:var(--mono);font-size:11px;color:var(--muted-dim);margin-top:7px}
+  .err{border-color:var(--sev-crit)!important}
+  .err-msg{color:var(--sev-crit);font-family:var(--mono);font-size:11px;margin-top:7px;display:none}
+  .err-msg.show{display:block}
+
+  /* check / radio cards */
+  .attest{display:flex;gap:12px;align-items:flex-start;background:var(--surface);border:1px solid var(--line);border-left:3px solid var(--sev-high);border-radius:var(--radius-sm);padding:15px 16px;margin-bottom:20px;cursor:pointer}
+  .attest input{width:18px;height:18px;flex:none;margin-top:2px;accent-color:var(--azure)}
+  .attest .at-txt{font-size:13px;color:var(--muted)}
+  .attest .at-txt b{color:var(--text);font-weight:600;display:block;margin-bottom:3px;font-family:var(--mono);font-size:11.5px;letter-spacing:.06em;text-transform:uppercase}
+
+  .choice-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+  .choice{cursor:pointer;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:22px;transition:border-color .18s ease,transform .18s ease;position:relative}
+  .choice:hover{transform:translateY(-2px);border-color:var(--edge,var(--azure))}
+  .choice.sel{border-color:var(--edge,var(--azure));box-shadow:0 0 0 2px var(--edge,var(--azure)) inset}
+  .choice .c-tag{font-family:var(--mono);font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--edge,var(--azure));margin-bottom:12px}
+  .choice h4{font-family:var(--display);font-size:19px;font-weight:600;margin-bottom:6px}
+  .choice p{font-size:13px;color:var(--muted)}
+  .choice .tick{position:absolute;top:16px;right:16px;width:22px;height:22px;border-radius:50%;border:1px solid var(--line);display:flex;align-items:center;justify-content:center;color:transparent;transition:all .2s ease}
+  .choice.sel .tick{background:var(--edge,var(--azure));border-color:var(--edge,var(--azure));color:#04102a}
+
+  /* schedule timeline (signature) */
+  .sched-scroll{overflow-x:auto;padding-bottom:8px;margin:0 -4px}
+  .timeline{display:flex;gap:8px;min-width:640px;padding:4px}
+  .day{
+    flex:1;min-width:78px;border-radius:11px;border:1px solid var(--line-soft);
+    padding:14px 10px;text-align:center;position:relative;background:var(--ink-2);
+    transition:transform .16s ease,border-color .2s ease,background .2s ease;
+  }
+  .day .dow{font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted-dim);margin-bottom:6px}
+  .day .dnum{font-family:var(--display);font-size:22px;font-weight:600;line-height:1;margin-bottom:3px}
+  .day .dmon{font-family:var(--mono);font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em}
+  .day .off{position:absolute;top:8px;left:8px;font-family:var(--mono);font-size:9px;color:var(--muted-dim)}
+  .day.lock{background:repeating-linear-gradient(45deg,var(--ink-2),var(--ink-2) 6px,var(--line-soft) 6px,var(--line-soft) 7px);color:var(--muted-dim);cursor:not-allowed}
+  .day.lock .dnum{color:var(--muted-dim)}
+  .day.lock .locknote{font-family:var(--mono);font-size:8.5px;color:var(--muted-dim);margin-top:6px;letter-spacing:.05em}
+  .day.open{cursor:pointer}
+  .day.open:hover{transform:translateY(-4px);border-color:var(--azure)}
+  .day.open .dnum{color:var(--text)}
+  .day.sel{background:var(--azure-dim);border-color:var(--azure);box-shadow:0 0 0 1px var(--azure) inset,0 16px 40px -24px var(--azure)}
+  .day.sel .dnum{color:var(--azure)}
+  .day.sel::after{content:"◆";position:absolute;bottom:8px;left:50%;transform:translateX(-50%);color:var(--azure);font-size:9px}
+  .timeline-axis{display:flex;justify-content:space-between;font-family:var(--mono);font-size:10.5px;color:var(--muted-dim);margin-top:14px;padding:0 4px}
+  .sched-note{margin-top:20px;font-family:var(--mono);font-size:12px;color:var(--muted);display:flex;gap:9px;align-items:baseline}
+  .sched-note::before{content:"//";color:var(--azure)}
+
+  /* summary + brief */
+  .summary{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:22px;margin-bottom:26px}
+  .summary-row{display:flex;justify-content:space-between;gap:16px;padding:11px 0;border-bottom:1px solid var(--line-soft);font-size:13.5px}
+  .summary-row:last-child{border-bottom:none}
+  .summary-row .k{font-family:var(--mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+  .summary-row .v{color:var(--text);text-align:right;font-weight:500}
+  .summary-row .v.mono{font-family:var(--mono);font-size:12.5px}
+
+  .brief-block{margin-bottom:26px}
+  .brief-block h3{font-family:var(--display);font-size:17px;font-weight:600;margin-bottom:4px;display:flex;align-items:center;gap:10px}
+  .brief-block .sub{color:var(--muted);font-size:13px;margin-bottom:16px}
+  .checklist{list-style:none;counter-reset:c;display:flex;flex-direction:column;gap:10px}
+  .checklist li{
+    background:var(--ink-2);border:1px solid var(--line-soft);border-radius:var(--radius-sm);
+    padding:14px 16px 14px 15px;display:flex;gap:14px;align-items:flex-start;counter-increment:c;
+    border-left:3px solid var(--prio,var(--azure));
+  }
+  .checklist li .cn{font-family:var(--mono);font-size:11px;font-weight:600;color:var(--prio,var(--azure));flex:none;padding-top:2px;min-width:22px}
+  .checklist li .ct b{display:block;font-size:14px;font-weight:600;margin-bottom:3px;color:var(--text)}
+  .checklist li .ct span{font-size:13px;color:var(--muted)}
+  .prio-tag{font-family:var(--mono);font-size:9px;letter-spacing:.1em;text-transform:uppercase;padding:3px 7px;border-radius:5px;margin-left:auto;flex:none;align-self:flex-start}
+  .prio-critical{background:rgba(255,77,109,.14);color:var(--sev-crit)}
+  .prio-required{background:rgba(255,159,69,.14);color:var(--sev-high)}
+  .prio-advised{background:rgba(77,212,196,.14);color:var(--sev-info)}
+
+  .confirm-banner{
+    display:flex;gap:14px;align-items:center;background:linear-gradient(90deg,var(--azure-dim),transparent);
+    border:1px solid rgba(91,157,255,.35);border-radius:var(--radius);padding:18px 20px;margin-bottom:26px;
+  }
+  .confirm-banner .cb-icon{width:40px;height:40px;flex:none;border-radius:10px;background:var(--azure);color:#04102a;display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-weight:700;font-size:18px}
+  .confirm-banner .cb-txt b{display:block;font-family:var(--display);font-size:16px;margin-bottom:2px}
+  .confirm-banner .cb-txt span{font-size:13px;color:var(--muted);font-family:var(--mono)}
+
+  /* nav buttons within panel */
+  .panel-nav{display:flex;justify-content:space-between;gap:12px;margin-top:30px;padding-top:22px;border-top:1px solid var(--line-soft)}
+  .link-btn{background:none;border:none;color:var(--muted);font-family:var(--mono);font-size:12.5px;cursor:pointer;display:inline-flex;align-items:center;gap:7px;padding:8px 4px}
+  .link-btn:hover{color:var(--text)}
+
+  footer{border-top:1px solid var(--line-soft);padding:30px 0 46px;text-align:center;position:relative;z-index:1}
+  footer .f-in{max-width:1120px;margin:0 auto;padding:0 clamp(18px,5vw,56px);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:14px}
+  footer p{font-family:var(--mono);font-size:11.5px;color:var(--muted-dim)}
+  footer .fnote{font-size:11.5px;color:var(--muted-dim);max-width:52ch;text-align:left}
+
+  /* responsive */
+  @media (max-width:860px){
+    .hero-grid{grid-template-columns:1fr}
+    .window-preview{order:-1}
+    .services{grid-template-columns:1fr}
+    .console-body{grid-template-columns:1fr}
+    .rail{border-right:none;border-bottom:1px solid var(--line-soft);display:flex;gap:6px;overflow-x:auto;padding:14px}
+    .rail-title{display:none}
+    .phase{flex-direction:column;align-items:center;gap:7px;padding:8px 12px;min-width:74px;text-align:center}
+    .phase + .phase{margin-top:0}
+    .phase .pt{padding-top:0;font-size:11px}
+    .phase.active::before{display:none}
+    .choice-grid{grid-template-columns:1fr}
+  }
+  @media (prefers-reduced-motion:reduce){
+    *{animation:none!important;transition:none!important;scroll-behavior:auto!important}
+  }
+
+  /* ---------- confirmation modal ---------- */
+  .modal-overlay{
+    position:fixed;inset:0;z-index:200;
+    background:rgba(6,10,20,.72);backdrop-filter:blur(4px);
+    display:none;align-items:center;justify-content:center;padding:20px;
+  }
+  .modal-overlay.on{display:flex;animation:fadeBg .2s ease}
+  @keyframes fadeBg{from{opacity:0}to{opacity:1}}
+  .modal-card{
+    width:100%;max-width:420px;background:linear-gradient(180deg,var(--surface),var(--ink-2));
+    border:1px solid var(--line);border-radius:16px;padding:34px 30px 28px;text-align:center;
+    box-shadow:0 40px 100px -30px #000,0 0 0 1px rgba(91,157,255,.08);
+    animation:popIn .28s cubic-bezier(.2,.9,.3,1.2);position:relative;
+  }
+  @keyframes popIn{from{opacity:0;transform:translateY(14px) scale(.97)}to{opacity:1;transform:none}}
+  .modal-check{
+    width:56px;height:56px;border-radius:50%;background:var(--azure-dim);border:1px solid rgba(91,157,255,.4);
+    display:flex;align-items:center;justify-content:center;margin:0 auto 18px;
+    color:var(--azure);font-size:26px;font-family:var(--mono);font-weight:700;
+    box-shadow:0 0 24px -4px var(--azure);
+  }
+  .modal-card h3{font-family:var(--display);font-size:22px;font-weight:600;letter-spacing:-.01em;margin-bottom:10px}
+  .modal-card p{color:var(--muted);font-size:14px;line-height:1.6;margin-bottom:6px}
+  .modal-card .m-ref{font-family:var(--mono);font-size:11.5px;color:var(--muted-dim);margin-top:14px;letter-spacing:.04em}
+  .modal-close{
+    margin-top:22px;width:100%;font-family:var(--mono);font-size:13px;font-weight:500;
+    background:var(--azure);color:#051225;border:none;border-radius:var(--radius-sm);
+    padding:12px;cursor:pointer;transition:background .18s ease,transform .15s ease;
+  }
+  .modal-close:hover{background:var(--azure-bright);transform:translateY(-1px)}
+  .modal-x{
+    position:absolute;top:14px;right:14px;background:none;border:none;color:var(--muted-dim);
+    font-family:var(--mono);font-size:16px;cursor:pointer;width:28px;height:28px;border-radius:7px;
+  }
+  .modal-x:hover{color:var(--text);background:var(--line-soft)}
+</style>
+</head>
+<body>
+
+<div class="modal-overlay" id="confirmModal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+  <div class="modal-card">
+    <button class="modal-x" onclick="closeModal()" aria-label="Close">✕</button>
+    <div class="modal-check">✓</div>
+    <h3 id="modalTitle">Booking Confirmed</h3>
+    <p>We'll contact you in the next work-day to confirm scope details and issue your Rules of Engagement.</p>
+    <p class="m-ref" id="modalRef"></p>
+    <button class="modal-close" onclick="closeModal()">Got it</button>
+  </div>
+</div>
+
+<header>
+  <div class="brand"><span class="dot"></span>NULLROUTE<span>// offensive security</span></div>
+  <div class="status"><span class="pulse"></span><span class="mono">intake&nbsp;·&nbsp;accepting bookings</span></div>
+</header>
+
+<main>
+  <!-- HERO -->
+  <section class="hero">
+    <div class="hero-grid">
+      <div>
+        <span class="eyebrow">Authorized security assessments</span>
+        <h1>Book a deep scan or <span class="em">full penetration test</span> of your own infrastructure.</h1>
+        <p class="lede">Create an account, define your scope, and lock an engagement slot. Every booking opens a fixed scheduling window and returns a preparation brief tailored to the assessment you chose.</p>
+        <div class="hero-cta">
+          <button class="btn btn-primary" onclick="startBooking()">Begin engagement <span class="btn-arrow">→</span></button>
+          <a class="btn btn-ghost" href="#services">Compare services</a>
+        </div>
+      </div>
+
+      <!-- mini signature: the engagement window -->
+      <div class="window-preview" aria-hidden="true">
+        <div class="wp-head">
+          <span class="label">Engagement window</span>
+          <span class="label" style="color:var(--azure)">D+5 → D+10</span>
+        </div>
+        <div class="wp-track">
+          <div class="wp-cell lock"><b>D+0</b>booking</div>
+          <div class="wp-cell lock">D+1</div>
+          <div class="wp-cell lock">D+2</div>
+          <div class="wp-cell lock">D+3</div>
+          <div class="wp-cell lock">D+4</div>
+          <div class="wp-cell open"><b>D+5</b>open</div>
+          <div class="wp-cell open">D+6</div>
+          <div class="wp-cell open">D+7</div>
+          <div class="wp-cell open">D+8</div>
+          <div class="wp-cell open">D+9</div>
+          <div class="wp-cell open"><b>D+10</b>open</div>
+        </div>
+        <div class="wp-legend">
+          <span><i class="l-lock"></i>Prep lockout</span>
+          <span><i class="l-open"></i>Bookable slot</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SERVICE OVERVIEW -->
+  <section class="services" id="services">
+    <button class="svc" style="--edge:var(--sev-info)" onclick="startBooking('scan')">
+      <div class="svc-tag">◇ Assessment A — Vulnerability Scanning</div>
+      <h3>Deep vulnerability scan</h3>
+      <p>Automated + verified discovery of known weaknesses across your external or internal attack surface.</p>
+      <ul>
+        <li>Full port, service &amp; version enumeration</li>
+        <li>Authenticated or unauthenticated coverage</li>
+        <li>CVSS-scored findings, false positives filtered</li>
+        <li>Typical window: 1–2 days</li>
+      </ul>
+      <span class="svc-go">Book a scan →</span>
+    </button>
+
+    <button class="svc" style="--edge:var(--sev-crit)" onclick="startBooking('pentest')">
+      <div class="svc-tag">◆ Assessment B — Penetration Testing</div>
+      <h3>Full penetration test</h3>
+      <p>Manual, goal-oriented exploitation that chains findings the way a real attacker would.</p>
+      <ul>
+        <li>Black / grey / white-box engagements</li>
+        <li>Exploitation, pivoting &amp; privilege escalation</li>
+        <li>Rules of engagement &amp; safe-stop procedure</li>
+        <li>Typical window: 3–5 days</li>
+      </ul>
+      <span class="svc-go">Book a pentest →</span>
+    </button>
+  </section>
+
+  <!-- CONSOLE / WIZARD -->
+  <section class="console" id="console">
+    <div class="console-bar">
+      <span class="tl"><i></i><i></i><i></i></span>
+      <span class="path">nullroute@intake:~$ <b id="crumb">./book --new</b></span>
+    </div>
+
+    <div class="console-body">
+      <!-- phase rail -->
+      <nav class="rail" aria-label="Booking progress">
+        <div class="rail-title">Engagement phases</div>
+        <div class="phase" data-phase="0"><span class="num">00</span><span class="pt">Create account</span></div>
+        <div class="phase" data-phase="1"><span class="num">01</span><span class="pt">Select assessment</span></div>
+        <div class="phase" data-phase="2"><span class="num">02</span><span class="pt">Scope &amp; intake</span></div>
+        <div class="phase" data-phase="3"><span class="num">03</span><span class="pt">Schedule window</span></div>
+        <div class="phase" data-phase="4"><span class="num">04</span><span class="pt">Review &amp; confirm</span></div>
+        <div class="phase" data-phase="5"><span class="num">05</span><span class="pt">Preparation brief</span></div>
+      </nav>
+
+      <!-- panel -->
+      <div class="panel">
+
+        <!-- PHASE 0 — SIGNUP -->
+        <div class="step on" data-step="0">
+          <div class="panel-head">
+            <span class="eyebrow">Phase 00 · Identity</span>
+            <h2>Create your engagement account</h2>
+            <p>We use this to send scanner source IPs, secure upload links, and your final report. One account can hold multiple bookings.</p>
+          </div>
+          <div class="row">
+            <div class="field"><label class="lbl">Full name <span class="req">*</span></label><input id="s_name" placeholder="Ada Lovelace"><div class="err-msg" data-for="s_name">Enter your name.</div></div>
+            <div class="field"><label class="lbl">Organization <span class="req">*</span></label><input id="s_org" placeholder="Acme Corp"><div class="err-msg" data-for="s_org">Enter your organization.</div></div>
+          </div>
+          <div class="row">
+            <div class="field"><label class="lbl">Work email <span class="req">*</span></label><input id="s_email" placeholder="you@company.com"><div class="err-msg" data-for="s_email">Enter a valid email address.</div></div>
+            <div class="field"><label class="lbl">Direct phone</label><input id="s_phone" placeholder="+1 555 019 2830"></div>
+          </div>
+          <div class="row">
+            <div class="field"><label class="lbl">Password <span class="req">*</span></label><input id="s_pass" type="password" placeholder="min. 8 characters"><div class="err-msg" data-for="s_pass">Use at least 8 characters.</div></div>
+            <div class="field"><label class="lbl">Confirm password <span class="req">*</span></label><input id="s_pass2" type="password" placeholder="repeat password"><div class="err-msg" data-for="s_pass2">Passwords do not match.</div></div>
+          </div>
+          <div class="panel-nav">
+            <span class="link-btn" id="signupSyncNote" style="opacity:.7"></span>
+            <button class="btn btn-primary" onclick="submitSignup()">Create account &amp; continue <span class="btn-arrow">→</span></button>
+          </div>
+        </div>
+
+        <!-- PHASE 1 — SERVICE -->
+        <div class="step" data-step="1">
+          <div class="panel-head">
+            <span class="eyebrow">Phase 01 · Assessment type</span>
+            <h2>What do you want us to test?</h2>
+            <p>Pick the engagement. The intake form on the next phase adapts to your choice.</p>
+          </div>
+          <div class="choice-grid">
+            <div class="choice" style="--edge:var(--sev-info)" data-svc="scan" onclick="pickService('scan')">
+              <span class="tick">✓</span>
+              <div class="c-tag">◇ Assessment A</div>
+              <h4>Vulnerability scanning</h4>
+              <p>Broad discovery of known weaknesses. Fast, systematic, great as a recurring baseline.</p>
+            </div>
+            <div class="choice" style="--edge:var(--sev-crit)" data-svc="pentest" onclick="pickService('pentest')">
+              <span class="tick">✓</span>
+              <div class="c-tag">◆ Assessment B</div>
+              <h4>Penetration testing</h4>
+              <p>Manual exploitation and attack chaining against a defined objective. Deeper, adversarial.</p>
+            </div>
+          </div>
+          <div class="panel-nav">
+            <button class="link-btn" onclick="goTo(0)">← Back</button>
+            <button class="btn btn-primary" id="svcNext" disabled onclick="goTo(2)">Continue to scope <span class="btn-arrow">→</span></button>
+          </div>
+        </div>
+
+        <!-- PHASE 2 — INTAKE -->
+        <div class="step" data-step="2">
+          <div class="panel-head">
+            <span class="eyebrow">Phase 02 · Scope &amp; intake</span>
+            <h2 id="intakeTitle">Define the scope</h2>
+            <p id="intakeSub">Everything here goes straight into your rules of engagement. Anything you don't list is treated as out of scope.</p>
+          </div>
+
+          <!-- shared fields -->
+          <div class="field">
+            <label class="lbl">In-scope targets <span class="req">*</span></label>
+            <textarea id="i_targets" placeholder="app.company.com&#10;api.company.com&#10;203.0.113.0/24"></textarea>
+            <div class="hint">One domain, subdomain, URL or IP/CIDR per line.</div>
+            <div class="err-msg" data-for="i_targets">List at least one target.</div>
+          </div>
+
+          <div class="field">
+            <label class="lbl">Explicitly out of scope</label>
+            <textarea id="i_outscope" placeholder="billing.company.com&#10;any third-party SaaS we don't own"></textarea>
+            <div class="hint">Hosts, paths or services we must not touch.</div>
+          </div>
+
+          <!-- scan-only -->
+          <div class="svc-only scan">
+            <div class="row">
+              <div class="field">
+                <label class="lbl">Scan surface <span class="req">*</span></label>
+                <select id="i_scan_surface">
+                  <option value="">Select…</option>
+                  <option>External (internet-facing)</option>
+                  <option>Internal (from inside the network)</option>
+                  <option>Web application</option>
+                  <option>Full — external + internal + web</option>
+                </select>
+              </div>
+              <div class="field">
+                <label class="lbl">Authentication</label>
+                <select id="i_scan_auth">
+                  <option>Unauthenticated only</option>
+                  <option>Authenticated (I will provide test accounts)</option>
+                  <option>Both</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <!-- pentest-only -->
+          <div class="svc-only pentest">
+            <div class="row">
+              <div class="field">
+                <label class="lbl">Engagement style <span class="req">*</span></label>
+                <select id="i_pt_box">
+                  <option value="">Select…</option>
+                  <option>Black-box (no prior knowledge)</option>
+                  <option>Grey-box (limited access + credentials)</option>
+                  <option>White-box (full docs + source)</option>
+                </select>
+              </div>
+              <div class="field">
+                <label class="lbl">Primary objective</label>
+                <select id="i_pt_goal">
+                  <option>Broad coverage of the scope</option>
+                  <option>Reach specific data / "crown jewels"</option>
+                  <option>Test a single application in depth</option>
+                  <option>Validate fixes from a prior test</option>
+                </select>
+              </div>
+            </div>
+            <div class="row">
+              <div class="field">
+                <label class="lbl">Testing window preference</label>
+                <select id="i_pt_hours">
+                  <option>Business hours</option>
+                  <option>Off-hours / overnight</option>
+                  <option>Any time (24/7)</option>
+                </select>
+              </div>
+              <div class="field">
+                <label class="lbl">Social engineering</label>
+                <select id="i_pt_se">
+                  <option>Not included</option>
+                  <option>Phishing in scope</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <!-- shared contact + environment -->
+          <div class="row">
+            <div class="field">
+              <label class="lbl">Environment <span class="req">*</span></label>
+              <select id="i_env">
+                <option value="">Select…</option>
+                <option>Production</option>
+                <option>Staging / pre-production</option>
+                <option>Dedicated test environment</option>
+              </select>
+            </div>
+            <div class="field">
+              <label class="lbl">Technical point of contact <span class="req">*</span></label>
+              <input id="i_contact" placeholder="Name · reachable during the window">
+              <div class="err-msg" data-for="i_contact">Provide a point of contact.</div>
+            </div>
+          </div>
+
+          <div class="field">
+            <label class="lbl">Anything we should know</label>
+            <textarea id="i_notes" placeholder="Fragile systems, WAF/rate-limits, prior findings, compliance drivers (PCI, SOC 2, ISO 27001)…"></textarea>
+          </div>
+
+          <!-- authorization attestation -->
+          <label class="attest">
+            <input type="checkbox" id="i_auth">
+            <span class="at-txt">
+              <b>◆ Authorization to test — required</b>
+              I own the assets listed above or hold written authorization from the owner to have them tested. I understand no testing begins until a signed Rules of Engagement is on file.
+            </span>
+          </label>
+          <div class="err-msg" data-for="i_auth" style="margin-top:-12px;margin-bottom:16px">You must confirm authorization to continue.</div>
+
+          <div class="panel-nav">
+            <button class="link-btn" onclick="goTo(1)">← Change assessment</button>
+            <button class="btn btn-primary" onclick="submitIntake()">Continue to scheduling <span class="btn-arrow">→</span></button>
+          </div>
+        </div>
+
+        <!-- PHASE 3 — SCHEDULE -->
+        <div class="step" data-step="3">
+          <div class="panel-head">
+            <span class="eyebrow">Phase 03 · Engagement window</span>
+            <h2>Choose your start date</h2>
+            <p>Slots open <b>5 days after signup</b> and close <b>10 days after signup</b>. The lead time gives you room to complete the preparation brief and gives us time to stage tooling for your scope.</p>
+          </div>
+
+          <div class="sched-scroll">
+            <div class="timeline" id="timeline"><!-- built by JS --></div>
+          </div>
+          <div class="timeline-axis"><span>Signup day</span><span>← preparation lockout →</span><span>bookable window</span></div>
+          <div class="sched-note" id="schedNote">Select any open slot above to lock your engagement start.</div>
+
+          <div class="panel-nav">
+            <button class="link-btn" onclick="goTo(2)">← Back to scope</button>
+            <button class="btn btn-primary" id="schedNext" disabled onclick="goToReview()">Review booking <span class="btn-arrow">→</span></button>
+          </div>
+        </div>
+
+        <!-- PHASE 4 — REVIEW -->
+        <div class="step" data-step="4">
+          <div class="panel-head">
+            <span class="eyebrow">Phase 04 · Final check</span>
+            <h2>Review before you confirm</h2>
+            <p>Nothing is booked or sent yet. Check the details below — you can still go back and change your date, scope, or assessment type.</p>
+          </div>
+
+          <div class="summary" id="reviewSummary"><!-- built by JS --></div>
+
+          <label class="attest" style="border-left-color:var(--azure)">
+            <input type="checkbox" id="r_final" checked disabled style="opacity:.5">
+            <span class="at-txt">
+              <b>◆ What happens on confirm</b>
+              This locks your start date, submits your scope to our team, and issues your preparation brief. We'll contact you within the next work-day.
+            </span>
+          </label>
+
+          <div class="panel-nav">
+            <button class="link-btn" onclick="goTo(3)">← Change date</button>
+            <button class="btn btn-primary" onclick="confirmBooking()">Confirm booking <span class="btn-arrow">→</span></button>
+          </div>
+        </div>
+
+        <!-- PHASE 5 — BRIEF -->
+        <div class="step" data-step="5">
+          <div class="panel-head">
+            <span class="eyebrow">Phase 05 · You're booked</span>
+            <h2 id="briefTitle">Preparation brief</h2>
+            <p id="briefSub">Complete these before your start date. Items are ordered by priority — critical items block the engagement if incomplete.</p>
+          </div>
+
+          <div class="confirm-banner">
+            <div class="cb-icon">✓</div>
+            <div class="cb-txt">
+              <b id="cbLine">Engagement confirmed</b>
+              <span id="cbSub">—</span>
+            </div>
+          </div>
+
+          <div class="summary" id="summary"><!-- built by JS --></div>
+
+          <div class="brief-block">
+            <h3 id="briefListTitle">Prepare your environment</h3>
+            <div class="sub" id="briefListSub">Follow every step for the assessment you booked.</div>
+            <ul class="checklist" id="checklist"><!-- built by JS --></ul>
+          </div>
+
+          <div class="panel-nav">
+            <button class="link-btn" onclick="resetBooking()">↻ Book another engagement</button>
+            <span class="link-btn" id="bookingSyncNote" style="opacity:.7"></span>
+            <button class="btn btn-ghost" onclick="window.print()">Save / print brief</button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="f-in">
+    <p>NULLROUTE // offensive security</p>
+    <p class="fnote">Demo booking front-end. All engagements require a signed Rules of Engagement and are limited to assets you own or are authorized to test.</p>
+  </div>
+</footer>
+
+<script>
+/* ------------ Google Sheets sync ------------
+   Paste the Web App URL from your Apps Script deployment here.
+   See the setup instructions provided alongside this file.        */
+const SHEETS_WEBAPP_URL = 'PASTE_YOUR_APPS_SCRIPT_WEB_APP_URL_HERE';
+
+function sheetsConfigured(){
+  return SHEETS_WEBAPP_URL && SHEETS_WEBAPP_URL.indexOf('https://script.google.com') === 0;
+}
+
+/**
+ * Fire-and-forget write to the Apps Script web app.
+ * Uses text/plain + no-cors so the browser never blocks on a CORS
+ * preflight (Apps Script doesn't handle OPTIONS). This means we
+ * cannot read the response — only whether the network request itself
+ * went out — so treat "sent" as optimistic, not a guaranteed write.
+ */
+function saveToSheet(payload, noteEl){
+  if(!sheetsConfigured()){
+    if(noteEl) noteEl.textContent = '⚠ Sheet not connected — see setup notes';
+    return;
+  }
+  if(noteEl) noteEl.textContent = 'Syncing to sheet…';
+  fetch(SHEETS_WEBAPP_URL, {
+    method: 'POST',
+    mode: 'no-cors',
+    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+    body: JSON.stringify(payload)
+  }).then(()=>{
+    if(noteEl) noteEl.textContent = '✓ Synced to sheet';
+  }).catch(()=>{
+    if(noteEl) noteEl.textContent = '⚠ Sync failed — saved locally only';
+  });
+}
+
+/* ------------ state ------------ */
+const state = {
+  phase: 0,
+  maxPhase: 0,
+  account: null,
+  accountId: null,
+  signupDate: null,
+  service: null,     // 'scan' | 'pentest'
+  intake: {},
+  chosenDate: null,
+  chosenOffset: null
+};
+
+const SERVICE_LABEL = { scan:'Vulnerability scanning', pentest:'Penetration testing' };
+
+/* ------------ helpers ------------ */
+const $  = s => document.querySelector(s);
+const $$ = s => Array.from(document.querySelectorAll(s));
+function addDays(d,n){ const x = new Date(d); x.setDate(x.getDate()+n); return x; }
+function fmtLong(d){ return d.toLocaleDateString(undefined,{weekday:'long',day:'numeric',month:'long',year:'numeric'}); }
+function markErr(id,on){ const el=$('#'+id); if(!el)return; el.classList.toggle('err',on); const m=document.querySelector('.err-msg[data-for="'+id+'"]'); if(m)m.classList.toggle('show',on); }
+function clearErrs(){ $$('.err').forEach(e=>e.classList.remove('err')); $$('.err-msg').forEach(e=>e.classList.remove('show')); }
+
+/* ------------ navigation ------------ */
+function startBooking(preselect){
+  if(preselect) state.preselect = preselect;
+  $('#console').scrollIntoView({behavior:'smooth'});
+}
+function goTo(phase){
+  state.phase = phase;
+  state.maxPhase = Math.max(state.maxPhase, phase);
+  $$('.step').forEach(s=> s.classList.toggle('on', +s.dataset.step===phase));
+  $$('.phase').forEach(p=>{
+    const n=+p.dataset.phase;
+    p.classList.toggle('active', n===phase);
+    p.classList.toggle('done', n<phase);
+  });
+  const crumbs=['./book --new','--select-assessment','--scope','--schedule','--review','--brief'];
+  $('#crumb').textContent = crumbs[phase];
+  $('#console').scrollIntoView({behavior:'smooth',block:'start'});
+}
+
+/* ------------ phase 0: signup ------------ */
+function submitSignup(){
+  clearErrs();
+  const name=$('#s_name').value.trim();
+  const org =$('#s_org').value.trim();
+  const email=$('#s_email').value.trim();
+  const pass=$('#s_pass').value;
+  const pass2=$('#s_pass2').value;
+  let ok=true;
+  if(!name){markErr('s_name',true);ok=false}
+  if(!org){markErr('s_org',true);ok=false}
+  if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){markErr('s_email',true);ok=false}
+  if(pass.length<8){markErr('s_pass',true);ok=false}
+  if(pass!==pass2 || !pass2){markErr('s_pass2',true);ok=false}
+  if(!ok)return;
+
+  state.account={name,org,email,phone:$('#s_phone').value.trim()};
+  state.accountId='ACC-'+Date.now().toString(36).toUpperCase();
+  state.signupDate=new Date();
+
+  saveToSheet({
+    type: 'signup',
+    accountId: state.accountId,
+    name, org, email,
+    phone: state.account.phone,
+    signupTimestamp: state.signupDate.toISOString()
+  }, $('#signupSyncNote'));
+
+  if(state.preselect){ pickService(state.preselect); goTo(2); }
+  else goTo(1);
+}
+
+/* ------------ phase 1: service ------------ */
+function pickService(svc){
+  state.service=svc;
+  $$('.choice').forEach(c=>c.classList.toggle('sel', c.dataset.svc===svc));
+  $('#svcNext').disabled=false;
+  // toggle intake fields
+  $$('.svc-only').forEach(el=> el.style.display = el.classList.contains(svc)?'block':'none');
+  const isScan = svc==='scan';
+  $('#intakeTitle').textContent = isScan? 'Scope the scan' : 'Scope the penetration test';
+  $('#intakeSub').textContent = isScan
+    ? 'Tell us what to scan and how deep. Anything you don\u2019t list is treated as out of scope.'
+    : 'Define targets, engagement style and objective. Anything you don\u2019t list is treated as out of scope.';
+}
+
+/* ------------ phase 2: intake ------------ */
+function submitIntake(){
+  clearErrs();
+  let ok=true;
+  const targets=$('#i_targets').value.trim();
+  const env=$('#i_env').value;
+  const contact=$('#i_contact').value.trim();
+  const auth=$('#i_auth').checked;
+  if(!targets){markErr('i_targets',true);ok=false}
+  if(!env){markErr('i_env',true);ok=false}
+  if(!contact){markErr('i_contact',true);ok=false}
+  if(!auth){markErr('i_auth',true);ok=false}
+
+  if(state.service==='scan'){
+    if(!$('#i_scan_surface').value){markErr('i_scan_surface',true);ok=false}
+  }else{
+    if(!$('#i_pt_box').value){markErr('i_pt_box',true);ok=false}
+  }
+  if(!ok)return;
+
+  state.intake={
+    targets, env, contact,
+    outscope:$('#i_outscope').value.trim(),
+    notes:$('#i_notes').value.trim(),
+    scan_surface:$('#i_scan_surface').value,
+    scan_auth:$('#i_scan_auth').value,
+    pt_box:$('#i_pt_box').value,
+    pt_goal:$('#i_pt_goal').value,
+    pt_hours:$('#i_pt_hours').value,
+    pt_se:$('#i_pt_se').value
+  };
+  buildTimeline();
+  goTo(3);
+}
+
+/* ------------ phase 3: schedule ------------ */
+function buildTimeline(){
+  const tl=$('#timeline'); tl.innerHTML='';
+  const base=state.signupDate;
+  for(let off=0; off<=10; off++){
+    const d=addDays(base,off);
+    const open = off>=5;
+    const cell=document.createElement('div');
+    cell.className='day '+(open?'open':'lock');
+    cell.innerHTML =
+      '<div class="off">D+'+off+'</div>'+
+      '<div class="dow">'+d.toLocaleDateString(undefined,{weekday:'short'})+'</div>'+
+      '<div class="dnum">'+d.getDate()+'</div>'+
+      '<div class="dmon">'+d.toLocaleDateString(undefined,{month:'short'})+'</div>'+
+      (open?'':'<div class="locknote">'+(off===0?'booking':'prep')+'</div>');
+    if(open){
+      cell.onclick=()=>selectDay(off,d,cell);
+    }
+    tl.appendChild(cell);
+  }
+  state.chosenDate=null; state.chosenOffset=null;
+  $('#schedNext').disabled=true;
+  $('#schedNote').textContent='Select any open slot above to lock your engagement start.';
+}
+function selectDay(off,d,cell){
+  $$('.day').forEach(c=>c.classList.remove('sel'));
+  cell.classList.add('sel');
+  state.chosenDate=d; state.chosenOffset=off;
+  $('#schedNext').disabled=false;
+  $('#schedNote').textContent='Start date locked to '+fmtLong(d)+' (D+'+off+'). Confirm to receive your brief.';
+}
+
+/* ------------ phase 4: confirm + brief ------------ */
+/* ------------ confirmation modal ------------ */
+function showModal(refText){
+  $('#modalRef').textContent = refText || '';
+  const ov = $('#confirmModal');
+  ov.classList.add('on');
+  document.body.style.overflow = 'hidden';
+}
+function closeModal(){
+  $('#confirmModal').classList.remove('on');
+  document.body.style.overflow = '';
+}
+$('#confirmModal').addEventListener('click', e=>{ if(e.target.id==='confirmModal') closeModal(); });
+document.addEventListener('keydown', e=>{ if(e.key==='Escape') closeModal(); });
+
+function buildSummaryRows(includeRef){
+  const svc=state.service, isScan=svc==='scan';
+  const rows=[];
+  if(includeRef) rows.push(['Reference', state.ref, true]);
+  rows.push(['Assessment', SERVICE_LABEL[svc], false]);
+  rows.push(['Start date', fmtLong(state.chosenDate), false]);
+  rows.push(['Environment', state.intake.env, false]);
+  rows.push(['Point of contact', state.intake.contact, false]);
+  if(isScan){
+    rows.splice(includeRef?3:2,0,['Scan surface', state.intake.scan_surface, false]);
+    rows.splice(includeRef?4:3,0,['Authentication', state.intake.scan_auth, false]);
+  }else{
+    rows.splice(includeRef?3:2,0,['Engagement style', state.intake.pt_box, false]);
+    rows.splice(includeRef?4:3,0,['Objective', state.intake.pt_goal, false]);
+    rows.splice(includeRef?5:4,0,['Testing window', state.intake.pt_hours, false]);
+  }
+  const tgtCount = state.intake.targets.split('\n').filter(x=>x.trim()).length;
+  rows.push(['In-scope targets', tgtCount+' item'+(tgtCount===1?'':'s'), false]);
+  return rows;
+}
+function renderRows(rows){
+  return rows.map(r=>
+    '<div class="summary-row"><span class="k">'+r[0]+'</span><span class="v'+(r[2]?' mono':'')+'">'+escapeHtml(r[1])+'</span></div>'
+  ).join('');
+}
+
+function goToReview(){
+  $('#reviewSummary').innerHTML = renderRows(buildSummaryRows(false));
+  goTo(4);
+}
+
+function confirmBooking(){
+  state.ref = 'NR-'+ (Date.now().toString(36).toUpperCase().slice(-6));
+
+  saveToSheet({
+    type: 'booking',
+    reference: state.ref,
+    accountId: state.accountId,
+    accountName: state.account.name,
+    accountOrg: state.account.org,
+    accountEmail: state.account.email,
+    service: SERVICE_LABEL[state.service],
+    startDate: state.chosenDate.toISOString(),
+    dayOffset: state.chosenOffset,
+    environment: state.intake.env,
+    contact: state.intake.contact,
+    targets: state.intake.targets,
+    outOfScope: state.intake.outscope,
+    notes: state.intake.notes,
+    scanSurface: state.intake.scan_surface,
+    scanAuth: state.intake.scan_auth,
+    ptBox: state.intake.pt_box,
+    ptGoal: state.intake.pt_goal,
+    ptHours: state.intake.pt_hours,
+    ptSocialEng: state.intake.pt_se,
+    bookedTimestamp: new Date().toISOString()
+  }, $('#bookingSyncNote'));
+
+  renderBrief();
+  goTo(5);
+  showModal(state.ref+' · '+SERVICE_LABEL[state.service]);
+}
+
+function renderBrief(){
+  const svc=state.service, isScan=svc==='scan';
+  const ref=state.ref;
+
+  $('#briefTitle').textContent = (isScan?'Vulnerability scan':'Penetration test')+' — preparation brief';
+  $('#cbLine').textContent = SERVICE_LABEL[svc]+' confirmed';
+  $('#cbSub').textContent = ref+' · '+fmtLong(state.chosenDate);
+
+  $('#summary').innerHTML = renderRows(buildSummaryRows(true));
+
+  // checklist
+  const list = isScan ? SCAN_PREP : PENTEST_PREP;
+  $('#briefListTitle').textContent = isScan ? 'Prepare your environment for scanning' : 'Prepare your environment for the pentest';
+  $('#briefListSub').textContent = 'Complete before '+fmtLong(state.chosenDate)+'. Critical items block the engagement if incomplete.';
+  $('#checklist').innerHTML = list.map((it,i)=>{
+    const cls = it.prio==='critical'?'prio-critical':it.prio==='required'?'prio-required':'prio-advised';
+    const clr = it.prio==='critical'?'var(--sev-crit)':it.prio==='required'?'var(--sev-high)':'var(--sev-info)';
+    return '<li style="--prio:'+clr+'"><span class="cn">'+String(i+1).padStart(2,'0')+'</span>'+
+           '<span class="ct"><b>'+it.t+'</b><span>'+it.d+'</span></span>'+
+           '<span class="prio-tag '+cls+'">'+it.prio+'</span></li>';
+  }).join('');
+}
+
+function escapeHtml(s){ return String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
+
+function resetBooking(){
+  ['s_name','s_org','s_email','s_phone','s_pass','s_pass2','i_targets','i_outscope','i_notes','i_contact'].forEach(id=>{const e=$('#'+id); if(e)e.value='';});
+  $('#i_auth').checked=false;
+  state.service=null; state.preselect=null; state.intake={}; state.chosenDate=null;
+  state.account=null; state.accountId=null; state.signupDate=null; state.ref=null;
+  $$('.choice').forEach(c=>c.classList.remove('sel'));
+  $('#svcNext').disabled=true;
+  $('#signupSyncNote').textContent=''; $('#bookingSyncNote').textContent='';
+  clearErrs();
+  goTo(0);
+}
+
+/* ------------ preparation content ------------ */
+const SCAN_PREP = [
+  {t:'Confirm scope & authorization sign-off', d:'Verify the target list you submitted is final and that you hold authorization for every asset. A signed Rules of Engagement must be returned before the start date.', prio:'critical'},
+  {t:'Allowlist our scanner source IPs', d:'We email the scanner IP addresses 48 hours before your window. Add them to firewall, WAF, IPS and rate-limiter allowlists so controls don\u2019t block or distort results.', prio:'critical'},
+  {t:'Notify your team & hosting provider', d:'Alert your ops/on-call staff, and if you\u2019re on shared or managed hosting, tell the provider the scan window to avoid abuse flags or auto-suspension.', prio:'required'},
+  {t:'Snapshot in-scope systems', d:'Take backups or snapshots of the systems in scope before the window as a precaution, even though scanning is largely non-intrusive.', prio:'required'},
+  {t:'Provide test credentials (authenticated scans only)', d:'If you requested authenticated coverage, create accounts at the agreed privilege level and share them through the secure upload link, not by email.', prio:'required'},
+  {t:'Freeze major changes during the window', d:'Avoid deployments and config changes while the scan runs so findings map cleanly to a stable state.', prio:'advised'},
+  {t:'Keep a contact reachable', d:'Nominate one person who can answer questions or pause the scan for the duration of the window.', prio:'advised'}
+];
+
+const PENTEST_PREP = [
+  {t:'Sign the Rules of Engagement & authorization letter', d:'Testing cannot legally begin until written authorization for every in-scope asset is on file. Return the signed RoE via the secure link.', prio:'critical'},
+  {t:'Lock scope and out-of-scope lists', d:'Confirm the exact targets and explicitly list anything off-limits — production payment flows, third-party services you don\u2019t own, specific hosts.', prio:'critical'},
+  {t:'Establish an emergency contact & safe-stop', d:'Provide a contact reachable throughout the window and agree the \u201cstop testing\u201d signal we\u2019ll use if anything becomes unstable.', prio:'critical'},
+  {t:'Notify your hosting / cloud provider', d:'Some providers (AWS, Azure, GCP) require or recommend notification for penetration testing. Complete any required forms before the start date.', prio:'required'},
+  {t:'Take full backups and snapshots', d:'Pentesting is more intrusive than scanning. Snapshot in-scope systems so you can restore quickly if needed.', prio:'required'},
+  {t:'Provision test accounts', d:'For grey- or white-box work, create accounts at each role and privilege level you asked us to cover and share them via the secure link.', prio:'required'},
+  {t:'Confirm testing windows & detection posture', d:'Confirm the allowed hours and any blackout periods, and decide whether to allowlist our IPs (assessment) or run dark so your blue team can detect us.', prio:'advised'},
+  {t:'Enable and retain logging', d:'Make sure logging is on and retained across in-scope systems so you can correlate our findings afterward.', prio:'advised'}
+];
+
+/* init */
+goTo(0);
+</script>
+</body>
+</html>
